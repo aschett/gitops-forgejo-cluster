@@ -3,12 +3,12 @@
   tasks:
     - name: Install k8s
       pacman:
-      name:
-       - kubelet
-       - kubeproxy
-       - kubectl
+        name:
+        - kubelet
+        - kubeproxy
+        - kubectl
 
     - name: Install docker
       pacman:
-      name:
-       - docker
+        name:
+        - docker
