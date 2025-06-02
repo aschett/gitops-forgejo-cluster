@@ -18,7 +18,7 @@
         enabled: true
         state: started
     
-    - name: Enable kubelet (start will haben by kubeadm)
+    - name: Enable kubelet (start will happen by kubeadm)
       systemd:
         name: kubelet
         enabled: true
