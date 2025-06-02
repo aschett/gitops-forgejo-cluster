@@ -1,4 +1,14 @@
-- name: Basic installations
+- name: Basic installations for nodes
   hosts: k8nodes
   tasks:
     - name: Install k8s
+      pacman:
+      name:
+       - kubelet
+       - kubeproxy
+       - kubectl
+
+    - name: Install docker
+      pacman:
+      name:
+       - docker
