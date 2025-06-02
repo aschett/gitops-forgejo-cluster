@@ -1,14 +1,12 @@
 - name: Basic installations for nodes
   hosts: k8nodes
+  become: true
   tasks:
-    - name: Install k8s
+    - name: Install k8s utility for nodes
       pacman:
         name:
         - kubelet
         - kube-proxy
         - kubectl
-
-    - name: Install docker
-      pacman:
-        name:
-        - docker
+      state: present
+      update_cache: yes
