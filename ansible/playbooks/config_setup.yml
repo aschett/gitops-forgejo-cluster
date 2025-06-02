@@ -1,0 +1,4 @@
+- name: Basic installations
+  hosts: k8nodes
+  tasks:
+    - name: Install k8s
