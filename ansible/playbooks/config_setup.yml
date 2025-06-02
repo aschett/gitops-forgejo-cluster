@@ -2,11 +2,23 @@
   hosts: k8nodes
   become: true
   tasks:
-    - name: Install k8s utility for nodes
+    - name: Install containerd and Kubernetes utility
       pacman:
         name:
+        - containerd
         - kubelet
         - kube-proxy
-        - kubectl
+        - kubeadm
       state: present
       update_cache: yes
+
+    - name: Enable and start containerd
+      systemd:
+        name: containerd
+        enabled: true
+        state: started
+    
+    - name: Enable kubelet (start will haben by kubeadm)
+      systemd:
+        name: kubelet
+        enabled: true
