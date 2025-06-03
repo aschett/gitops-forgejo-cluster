@@ -3,16 +3,9 @@
   become: true
 
   tasks:
-    - name: Install required packages
-      pacman:
-        name:
-          - containerd
-          - kubelet
-          - kubeadm
-          - kubectl
-        state: present
-        update_cache: true
-    
+    # install required packages
+    - include_tasks: "control_plane_setup_tasks-{{ ansible_distribution }}.yml"
+
     - name: Enable containerd and kubelet
       systemd:
         name: "{{ item }}"
