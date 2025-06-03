@@ -5,12 +5,12 @@
     - name: Install containerd and Kubernetes utility
       pacman:
         name:
-        - containerd
-        - kubelet
-        - kube-proxy
-        - kubeadm
-      state: present
-      update_cache: yes
+          - containerd
+          - kubelet
+          - kube-proxy
+          - kubeadm
+        state: present
+        update_cache: yes
 
     - name: Enable and start containerd
       systemd:
