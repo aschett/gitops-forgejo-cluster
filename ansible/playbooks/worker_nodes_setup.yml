@@ -2,9 +2,15 @@
   hosts: k8nodes
   become: true
   tasks:
+    - name: Remove iptables
+      pacman:
+        name: iptables
+        extra_args: "--cascade"
+        state: absent
     - name: Install containerd and Kubernetes utility
       pacman:
         name:
+          - iproute2
           - containerd
           - kubelet
           - kube-proxy

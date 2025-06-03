@@ -1,6 +1,12 @@
+- name: Remove iptables
+  pacman:
+    name: iptables
+    extra_args: "--cascade"
+    state: absent
 - name: Install required packages
   pacman:
     name:
+      - iproute2
       - containerd
       - kubelet
       - kubeadm
