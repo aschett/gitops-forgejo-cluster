@@ -1,3 +1,14 @@
+- name: Add k8s apt repository
+  block:
+    - name: Add k8s repo signing key
+      get_url:
+        url: https://pkgs.k8s.io/core:/stable:/v1.33/deb/Release.key
+        dest: /etc/apt/keyrings/kubernetes-apt-keyring.asc
+    - name: Add k8s repo entry
+      apt_repository:
+        repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.asc] https://pkgs.k8s.io/core:/stable:/v1.33/deb/ /"
+        state: present
+
 - name: Install required packages
   apt:
     name:
@@ -7,14 +18,3 @@
       - kubectl
     state: present
     update_cache: true
-  pre_tasks: 
-    - name: Add k8s apt repository
-      block:
-        - name: Add k8s repo signing key
-          get_url:
-            url: https://pkgs.k8s.io/core:/stable:/v1.33/deb/Release.key
-            dest: /etc/apt/keyrings/kubernetes-apt-keyring.asc
-        - name: Add k8s repo entry
-          apt_repository:
-            repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.asc] https://pkgs.k8s.io/core:/stable:/v1.33/deb/ /"
-            state: present
