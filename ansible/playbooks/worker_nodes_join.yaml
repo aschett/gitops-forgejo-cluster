@@ -1,0 +1,26 @@
+- name: Generate join command on control plane
+  hosts: k8control
+  become: true
+  tasks:
+    - name: Generate join command
+      command: kubeadm token create --print-join-command
+      register: join_output
+
+    - name: Set join command as fact
+      set_fact:
+        kubeadm_join_command: "{{ join_output.stdout }}"
+      run_once: true
+
+
+- name: Run kubeadm join on worker nodes
+  hosts: k8nodes
+  become: true
+  tasks:
+    - name: Check if already joined
+      stat:
+        path: /etc/kubernetes/kubelet.conf
+      register: kubelet_conf
+
+    - name: Join the cluster
+      shell: "{{ hostvars[groups['k8control'][0]].kubeadm_join_command }}"
+      when: not kubelet_conf.stat.exists
