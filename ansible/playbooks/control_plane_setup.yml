@@ -20,8 +20,43 @@
         path: /etc/kubernetes/manifests/kube-apiserver.yaml
       register: kube_apiserver_manifest
 
-      # TODO: As far as i understood we have to look into flanel for CIDR
     - name: Initialize the Kubernetes control plane
-      command: kubeadm init --pod-network-cidr=
+      command: kubeadm init --pod-network-cidr=10.244.0.0/16 # Flannel 
       when: not kube_apiserver_manifest.stat.exists
-    
+
+    - name: Wait for Kubernetes API server to be alive
+      uri:
+        url: https://localhost:6443/livez
+        method: GET
+        status_code: 200
+      register: result
+      retries: 10
+      delay: 10
+      until: result.status == 200
+
+    # Following three tasks need to be done as per https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/
+    - name: Check if kubeconfig exists
+      stat:
+        path: "{{ ansible_env.HOME }}/.kube/config"
+
+    - name: Create .kube directory
+      file:
+        path: "{{ ansible_env.HOME }}/.kube"
+        state: directory
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+      when: not kubeconfig.stat.exists
+
+    - name: Copy kubeconfig to user directory
+      copy:
+        src: /etc/kubernetes/admin.conf
+        dest: "{{ ansible_env.HOME }}/.kube/config"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+      when: not kubeconfig.stat.exists
+
+    - name: Install Flannel CNI
+      command: kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml
+      environment:
+        KUBECONFIG: /root/.kube/config
+      when: not kube_apiserver_manifest.stat.exists
