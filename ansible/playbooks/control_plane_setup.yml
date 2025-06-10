@@ -52,6 +52,7 @@
     - name: Check if kubeconfig exists
       stat:
         path: "{{ ansible_env.HOME }}/.kube/config"
+      register: kubeconfig
 
     - name: Copy kubeconfig to user directory
       copy:
