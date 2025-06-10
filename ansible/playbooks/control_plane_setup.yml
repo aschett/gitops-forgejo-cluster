@@ -35,6 +35,7 @@
     - name: Wait for Kubernetes API server to be alive
       uri:
         url: https://localhost:6443/livez
+        validate_certs: false
         method: GET
         status_code: 200
       register: result
