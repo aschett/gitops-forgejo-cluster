@@ -1,6 +1,5 @@
 - name: Set up Kubernetes control plane
   hosts: k8control_primary
-  become: true
 
   tasks:
     # install required packages
@@ -14,6 +13,7 @@
       loop:
         - containerd
         - kubelet
+      become: true
 
     - name: Check if Kubernetes is already initialized
       stat:
@@ -23,6 +23,7 @@
     - name: Initialize the Kubernetes control plane
       command: kubeadm init --pod-network-cidr=10.244.0.0/16 # Flannel 
       when: not kube_apiserver_manifest.stat.exists
+      become: true
 
     - name: Wait for Kubernetes API server to be alive
       uri:
@@ -53,5 +54,6 @@
     - name: Install Flannel CNI
       command: kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml
       environment:
-        KUBECONFIG: /root/.kube/config
+        KUBECONFIG: "{{ ansible_env.HOME }}/.kube/config"
       when: not kube_apiserver_manifest.stat.exists
+      become: true

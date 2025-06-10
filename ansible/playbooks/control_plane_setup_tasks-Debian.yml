@@ -8,6 +8,7 @@
       apt_repository:
         repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.asc] https://pkgs.k8s.io/core:/stable:/v1.33/deb/ /"
         state: present
+  become: true
 
 - name: Install required packages
   apt:
@@ -18,3 +19,4 @@
       - kubectl
     state: present
     update_cache: true
+  become: true
