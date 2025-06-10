@@ -7,6 +7,7 @@
   pacman:
     name:
       - iproute2
+      - iptables-nft
       - containerd
       - kubelet
       - kubeadm
