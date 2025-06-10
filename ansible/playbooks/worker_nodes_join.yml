@@ -1,5 +1,5 @@
 - name: Generate join command on control plane
-  hosts: k8control
+  hosts: k8control_primary
   become: true
   tasks:
     - name: Generate join command
@@ -22,5 +22,5 @@
       register: kubelet_conf
 
     - name: Join the cluster
-      shell: "{{ hostvars[groups['k8control'][0]].kubeadm_join_command }}"
+      shell: "{{ hostvars[groups['k8control_primary'][0]].kubeadm_join_command }}"
       when: not kubelet_conf.stat.exists
