@@ -1,5 +1,5 @@
 - name: Set up Kubernetes control plane
-  hosts: k8control
+  hosts: k8control_primary
   become: true
 
   tasks:
