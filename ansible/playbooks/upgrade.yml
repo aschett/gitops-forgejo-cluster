@@ -1,0 +1,19 @@
+- name: Upgrade Debian hosts
+  hosts: distro_debian
+  become: true
+  tasks:
+    - name: apt upgrade
+      apt:
+        update_cache: true
+        upgrade: yes
+        autoremove: true
+        autoclean: true
+
+- name: Upgrade Arch hosts
+  hosts: distro_arch
+  become: true
+  tasks:
+    - name: pacman -Syu
+      pacman:
+        update_cache: true
+        upgrade: true
