@@ -5,6 +5,13 @@
     # install required packages
     - include_tasks: "control_plane_setup_tasks-{{ ansible_distribution }}.yml"
 
+    - name: Enable and load br_netfilter kernel module
+      community.general.modprobe:
+        name: br_netfilter
+        state: present
+        persistent: present
+      become: true
+
     - name: Enable containerd and kubelet
       systemd:
         name: "{{ item }}"
