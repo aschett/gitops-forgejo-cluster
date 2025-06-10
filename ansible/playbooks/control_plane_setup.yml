@@ -35,24 +35,19 @@
       until: result.status == 200
 
     # Following three tasks need to be done as per https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/
-    - name: Check if kubeconfig exists
-      stat:
-        path: "{{ ansible_env.HOME }}/.kube/config"
-
     - name: Create .kube directory
       file:
         path: "{{ ansible_env.HOME }}/.kube"
         state: directory
-        owner: "{{ ansible_user }}"
-        group: "{{ ansible_user }}"
-      when: not kubeconfig.stat.exists
+
+    - name: Check if kubeconfig exists
+      stat:
+        path: "{{ ansible_env.HOME }}/.kube/config"
 
     - name: Copy kubeconfig to user directory
       copy:
         src: /etc/kubernetes/admin.conf
         dest: "{{ ansible_env.HOME }}/.kube/config"
-        owner: "{{ ansible_user }}"
-        group: "{{ ansible_user }}"
       when: not kubeconfig.stat.exists
 
     - name: Install Flannel CNI
