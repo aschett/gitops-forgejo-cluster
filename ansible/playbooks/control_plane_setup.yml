@@ -64,4 +64,3 @@
       environment:
         KUBECONFIG: "{{ ansible_env.HOME }}/.kube/config"
       when: not kube_apiserver_manifest.stat.exists
-      become: true
