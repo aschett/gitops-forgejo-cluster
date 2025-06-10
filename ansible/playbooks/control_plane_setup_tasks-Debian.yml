@@ -13,7 +13,8 @@
 - name: Install required packages
   apt:
     name:
-      - iptables-nft
+      - iptables
+      - nftables
       - containerd
       - kubelet
       - kubeadm
