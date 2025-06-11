@@ -3,7 +3,7 @@
   hosts: k8control_primary
 
   tasks:
-    - name: Check if helm is already installed
+    - name: Check if Helm is already installed
       stat:
         path: /usr/local/bin/helm
       register: helm_bin
@@ -23,9 +23,9 @@
         - name: Verify Helm installation
           stat:
             path: /usr/local/bin/helm
-          register: helm_bin
+          register: helm_bin_2
           changed_when: false
-          failed_when: not helm_bin.stat.exists
+          failed_when: not helm_bin_2.stat.exists
 
         - name: Delete Helm install script
           file:
