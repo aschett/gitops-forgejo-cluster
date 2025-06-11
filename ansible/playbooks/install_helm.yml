@@ -1,3 +1,4 @@
+# For clarification purposes the shell installation script sets the location and the check for the binary was taken from there -> {HELM_INSTALL_DIR:="/usr/local/bin"}
 - name: Install helm on Kubernetes on control plane
   hosts: k8control_primary
 
