@@ -22,6 +22,26 @@
         - kubelet
       become: true
 
+    - name: Set containerd cgroup driver to systemd
+      blockinfile:
+        path: /etc/containerd/config.toml
+        block: |
+          {% filter indent(width=4, first=true) %}
+          [plugins."io.containerd.grpc.v1.cri".containerd]
+            [plugins."io.containerd.grpc.v1.cri".containerd.runtimes]
+              [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
+                runtime_type = "io.containerd.runc.v2"
+                [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
+                  SystemdCgroup = true
+          {% endfilter %}
+        insertafter: '\[plugins\."io\.containerd\.grpc\.v1\.cri"\]'
+      become: true
+      notify:
+        - Restart containerd
+
+    - name: Restart containerd if needed
+      meta: flush_handlers
+
     - name: Check if Kubernetes is already initialized
       stat:
         path: /etc/kubernetes/manifests/kube-apiserver.yaml
@@ -33,6 +53,7 @@
         kubeadm init
           --apiserver-advertise-address=10.89.1.1
           --pod-network-cidr=10.244.0.0/16
+          --upload-certs
       when: not kube_apiserver_manifest.stat.exists
       become: true
 
@@ -78,3 +99,9 @@
       environment:
         KUBECONFIG: "{{ ansible_env.HOME }}/.kube/config"
       when: not kube_apiserver_manifest.stat.exists
+
+  handlers:
+    - name: Restart containerd
+      service:
+        name: containerd
+        state: restarted
