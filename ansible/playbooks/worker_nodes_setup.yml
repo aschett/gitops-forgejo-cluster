@@ -2,7 +2,7 @@
   hosts: k8nodes
   become: true
   tasks:
-    - name: Remove iptables
+    - name: Remove iptables (conflicts with iptables-nft)
       pacman:
         name: iptables
         extra_args: "--cascade"
@@ -10,6 +10,7 @@
     - name: Install containerd and Kubernetes utility
       pacman:
         name:
+          - iptables-nft
           - iproute2
           - containerd
           - kubelet
