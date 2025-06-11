@@ -26,9 +26,13 @@
       stat:
         path: /etc/kubernetes/manifests/kube-apiserver.yaml
       register: kube_apiserver_manifest
+      become: true
 
     - name: Initialize the Kubernetes control plane
-      command: kubeadm init --pod-network-cidr=10.244.0.0/16 # Flannel 
+      command: >
+        kubeadm init
+          --apiserver-advertise-address=10.89.1.1
+          --pod-network-cidr=10.244.0.0/16
       when: not kube_apiserver_manifest.stat.exists
       become: true
 
