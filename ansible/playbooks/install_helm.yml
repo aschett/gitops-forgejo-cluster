@@ -1,0 +1,28 @@
+- name: Install helm on Kubernetes on control plane
+  hosts: k8control_primary
+
+  tasks:
+    - name: Check if helm is already installed
+      ansible.builtin.stat:
+        path: /usr/local/bin/helm
+      register: helm_stat
+
+    - name: Install Helm if not present
+      block:
+        - name: Download helm install script
+          ansible.builtin.get_url:
+            url: "https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3"
+            dest: "/tmp/get_helm.sh"
+            mode: '0700'
+
+        - name: Run helm install script
+          ansible.builtin.shell: "/tmp/get_helm.sh"
+
+        - name: Verify that helm is installed #Same goes for here.
+          ansible.builtin.stat:
+            path: /usr/local/bin/helm
+          register: helm_stat
+          changed_when: false
+          failed_when: not helm_stat.stat.exists
+
+      when: not helm_stat.stat.exists
