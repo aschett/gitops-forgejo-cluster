@@ -4,3 +4,4 @@
 - import_playbook: control_plane/helm.yml
 - import_playbook: workers/setup.yml
 - import_playbook: workers/join.yml
+- import_playbook: services/dashboard.yml

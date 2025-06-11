@@ -1,0 +1,26 @@
+- name: Install Kubernetes dashboard
+  hosts: k8control_primary
+  tasks:
+    - name: Add Helm repo
+      command: helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
+  
+    - name: Run Helm install
+      command: >
+        helm upgrade --install
+          kubernetes-dashboard
+          kubernetes-dashboard/kubernetes-dashboard
+          --create-namespace --namespace kubernetes-dashboard
+
+    - name: Wait for dashboard pod to come online
+      register: result
+      retries: 10
+      delay: 10
+      until: result.status == 200
+
+    - name: Enable access to dashboard via proxy
+      command: >
+        kubectl
+          --namespace kubernetes-dashboard
+          port-forward
+            --address localhost,10.89.1.1
+            svc/kubernetes-dashboard-kong-proxy 8443:443
