@@ -1,29 +1,33 @@
 # For clarification purposes the shell installation script sets the location and the check for the binary was taken from there -> {HELM_INSTALL_DIR:="/usr/local/bin"}
-- name: Install helm on Kubernetes on control plane
+- name: Install Helm on Kubernetes on control plane
   hosts: k8control_primary
 
   tasks:
     - name: Check if helm is already installed
-      ansible.builtin.stat:
+      stat:
         path: /usr/local/bin/helm
-      register: helm_stat
+      register: helm_bin
 
-    - name: Install Helm if not present
+    - name: Install Helm
+      when: not helm_bin.stat.exists
       block:
-        - name: Download helm install script
-          ansible.builtin.get_url:
+        - name: Download Helm install script
+          get_url:
             url: "https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3"
-            dest: "/tmp/get_helm.sh"
-            mode: '0700'
+            dest: /tmp/get_helm.sh
+            mode: 0700
 
-        - name: Run helm install script
-          ansible.builtin.shell: "/tmp/get_helm.sh"
+        - name: Run Helm install script
+          command: /tmp/get_helm.sh
 
-        - name: Verify that helm is installed
-          ansible.builtin.stat:
+        - name: Verify Helm installation
+          stat:
             path: /usr/local/bin/helm
-          register: helm_stat
+          register: helm_bin
           changed_when: false
-          failed_when: not helm_stat.stat.exists
+          failed_when: not helm_bin.stat.exists
 
-      when: not helm_stat.stat.exists
+        - name: Delete Helm install script
+          file:
+            path: /tmp/get_helm.sh
+            state: absent
