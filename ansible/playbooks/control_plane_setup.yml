@@ -3,44 +3,17 @@
 
   tasks:
     # install required packages
-    - include_tasks: "control_plane_setup_tasks-{{ ansible_distribution }}.yml"
+    - include_tasks: "../tasks/control_plane_pkgs-{{ ansible_distribution }}.yml"
 
-    - name: Enable and load br_netfilter kernel module
-      community.general.modprobe:
-        name: br_netfilter
-        state: present
-        persistent: present
-      become: true
+    # br_netfilter and containerd
+    - include_tasks: ../tasks/setup_common.yml
 
-    - name: Enable containerd and kubelet
+    - name: Enable kubelet
       systemd:
-        name: "{{ item }}"
+        name: kubelet
         enabled: true
         state: started
-      loop:
-        - containerd
-        - kubelet
       become: true
-
-    - name: Set containerd cgroup driver to systemd
-      blockinfile:
-        path: /etc/containerd/config.toml
-        block: |
-          {% filter indent(width=4, first=true) %}
-          [plugins."io.containerd.grpc.v1.cri".containerd]
-            [plugins."io.containerd.grpc.v1.cri".containerd.runtimes]
-              [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
-                runtime_type = "io.containerd.runc.v2"
-                [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
-                  SystemdCgroup = true
-          {% endfilter %}
-        insertafter: '\[plugins\."io\.containerd\.grpc\.v1\.cri"\]'
-      become: true
-      notify:
-        - Restart containerd
-
-    - name: Restart containerd if needed
-      meta: flush_handlers
 
     - name: Check if Kubernetes is already initialized
       stat:
@@ -101,8 +74,4 @@
       when: not kube_apiserver_manifest.stat.exists
 
   handlers:
-    - name: Restart containerd
-      service:
-        name: containerd
-        state: restarted
-      become: true
+    - import_tasks: ../handlers/common.yml

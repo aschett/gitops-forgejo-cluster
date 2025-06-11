@@ -7,25 +7,21 @@
         name: iptables
         extra_args: "--cascade"
         state: absent
-    - name: Install containerd and Kubernetes utility
+
+    - name: Install required packages
       pacman:
         name:
-          - iptables-nft
           - iproute2
+          - iptables-nft
           - containerd
           - kubelet
-          - kube-proxy
           - kubeadm
+          - kube-proxy
         state: present
         update_cache: yes
 
-    - name: Enable and start containerd
-      systemd:
-        name: containerd
-        enabled: true
-        state: started
-    
-    - name: Enable kubelet (start will happen by kubeadm)
-      systemd:
-        name: kubelet
-        enabled: true
+    # br_netfilter and containerd
+    - include_tasks: ../tasks/setup_common.yml
+
+  handlers:
+    - import_tasks: ../handlers/common.yml

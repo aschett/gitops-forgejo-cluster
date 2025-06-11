@@ -1,0 +1,21 @@
+# playbooks using this must also have `handlers:` with `- import_tasks: handlers/common.yml`
+
+- name: Set containerd cgroup driver to systemd
+  blockinfile:
+    path: /etc/containerd/config.toml
+    block: |
+      {% filter indent(width=4, first=true) %}
+      [plugins."io.containerd.grpc.v1.cri".containerd]
+        [plugins."io.containerd.grpc.v1.cri".containerd.runtimes]
+          [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
+            runtime_type = "io.containerd.runc.v2"
+            [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
+              SystemdCgroup = true
+      {% endfilter %}
+    insertafter: '\[plugins\."io\.containerd\.grpc\.v1\.cri"\]'
+  become: true
+  notify:
+    - Restart containerd
+
+- name: Restart containerd if needed
+  meta: flush_handlers

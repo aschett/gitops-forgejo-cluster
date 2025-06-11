@@ -24,3 +24,8 @@
     - name: Join the cluster
       shell: "{{ hostvars[groups['k8control_primary'][0]].kubeadm_join_command }}"
       when: not kubelet_conf.stat.exists
+
+    - name: Enable kubelet
+      systemd:
+        name: kubelet
+        enabled: true

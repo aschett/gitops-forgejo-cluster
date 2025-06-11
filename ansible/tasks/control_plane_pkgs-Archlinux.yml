@@ -1,8 +1,9 @@
-- name: Remove iptables
+- name: Remove iptables (conflicts with iptables-nft)
   pacman:
     name: iptables
     extra_args: "--cascade"
     state: absent
+
 - name: Install required packages
   pacman:
     name:

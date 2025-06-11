@@ -1,0 +1,15 @@
+- name: Enable and load br_netfilter kernel module
+  community.general.modprobe:
+    name: br_netfilter
+    state: present
+    persistent: present
+  become: true
+
+- name: Enable and start containerd
+  systemd:
+    name: containerd
+    enabled: true
+    state: started
+  become: true
+
+- include_tasks: containerd_cgroup_driver.yml
