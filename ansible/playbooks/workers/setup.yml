@@ -21,7 +21,7 @@
         update_cache: yes
 
     # br_netfilter and containerd
-    - include_tasks: ../tasks/setup_common.yml
+    - include_tasks: ../../tasks/setup_common.yml
 
   handlers:
-    - import_tasks: ../handlers/common.yml
+    - import_tasks: ../../handlers/common.yml

@@ -6,10 +6,10 @@
 
   tasks:
     # install required packages
-    - include_tasks: "../tasks/control_plane_pkgs-{{ ansible_distribution }}.yml"
+    - include_tasks: "../../tasks/control_plane_pkgs-{{ ansible_distribution }}.yml"
 
     # br_netfilter and containerd
-    - include_tasks: ../tasks/setup_common.yml
+    - include_tasks: ../../tasks/setup_common.yml
 
     - name: Enable kubelet
       systemd:
@@ -77,4 +77,4 @@
       when: not kube_apiserver_manifest.stat.exists
 
   handlers:
-    - import_tasks: ../handlers/common.yml
+    - import_tasks: ../../handlers/common.yml
