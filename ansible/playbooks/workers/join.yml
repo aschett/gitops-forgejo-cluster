@@ -1,3 +1,20 @@
+- name: Get list of nodes to be joined
+  hosts: k8control_primary
+  tasks:
+    - name: Check node join status
+      command: "kubectl describe node '{{ item }}'"
+      loop: "{{ groups['k8nodes'] }}"
+      failed_when: false
+      changed_when: false
+      register: node_status
+
+    - name: Add unjoined nodes to list
+      set_fact:
+        unjoined_nodes: "{{ unjoined_nodes | default([]) | union([item.item]) }}"
+      loop: "{{ node_status.results }}"
+      when: "item.rc != 0"
+
+
 - name: Generate join command on control plane
   hosts: k8control_primary
   become: true
@@ -5,6 +22,7 @@
     - name: Generate join command
       command: kubeadm token create --print-join-command
       register: join_output
+      changed_when: false
 
     - name: Set join command as fact
       set_fact:
@@ -12,20 +30,19 @@
       run_once: true
 
 
-- name: Run kubeadm join on worker nodes
+- name: Run kubeadm join on unjoined worker nodes
   hosts: k8nodes
   become: true
+  vars:
+    unjoined_nodes: "{{ hostvars[groups['k8control_primary'][0]].unjoined_nodes | default([]) }}"
   tasks:
-    - name: Check if already joined
-      stat:
-        path: /etc/kubernetes/kubelet.conf
-      register: kubelet_conf
-
     - name: Join the cluster
-      shell: "{{ hostvars[groups['k8control_primary'][0]].kubeadm_join_command }}"
-      when: not kubelet_conf.stat.exists
+      when: "ansible_nodename in unjoined_nodes"
+      block:
+        - name: Run kubelet join
+          shell: "{{ hostvars[groups['k8control_primary'][0]].kubeadm_join_command }}"
 
-    - name: Enable kubelet
-      systemd:
-        name: kubelet
-        enabled: true
+        - name: Enable kubelet
+          systemd:
+            name: kubelet
+            enabled: true
