@@ -105,3 +105,4 @@
       service:
         name: containerd
         state: restarted
+      become: true
