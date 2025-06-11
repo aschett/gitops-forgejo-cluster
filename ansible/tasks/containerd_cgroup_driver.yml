@@ -1,5 +1,15 @@
 # playbooks using this must also have `handlers:` with `- import_tasks: handlers/common.yml`
 
+- name: Create containerd config if none exists
+  block:
+    - name: Create /etc/containerd
+      file:
+        path: /etc/containerd
+        state: directory
+    - name: Obtain default config
+      shell: containerd config default > /etc/containerd/config.toml
+  become: true
+
 - name: Set containerd cgroup driver to systemd
   blockinfile:
     path: /etc/containerd/config.toml
@@ -12,7 +22,8 @@
             [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
               SystemdCgroup = true
       {% endfilter %}
-    insertafter: '\[plugins\."io\.containerd\.grpc\.v1\.cri"\]'
+    insertafter: >-
+      ^[\t ]*\[plugins\.['"]io\.containerd\.grpc\.v1\.cri['"]\][\t ]*$
   become: true
   notify:
     - Restart containerd
