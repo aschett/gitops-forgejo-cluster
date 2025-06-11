@@ -18,7 +18,7 @@
         - name: Run helm install script
           ansible.builtin.shell: "/tmp/get_helm.sh"
 
-        - name: Verify that helm is installed #Same goes for here.
+        - name: Verify that helm is installed
           ansible.builtin.stat:
             path: /usr/local/bin/helm
           register: helm_stat
