@@ -6,7 +6,12 @@
       file:
         path: /etc/containerd
         state: directory
+    - name: Check whether a config exists
+      stat:
+        path: /etc/containerd/config.toml
+      register: containerd_config
     - name: Obtain default config
+      when: not containerd_config.stat.exists
       shell: containerd config default > /etc/containerd/config.toml
   become: true
 
