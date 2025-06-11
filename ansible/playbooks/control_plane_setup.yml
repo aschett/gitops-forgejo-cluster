@@ -58,7 +58,16 @@
       copy:
         src: /etc/kubernetes/admin.conf
         dest: "{{ ansible_env.HOME }}/.kube/config"
+        remote_src: true
+        owner: "{{ ansible_user_id }}"
+        group: "{{ ansible_user_gid }}"
+      become: true
       when: not kubeconfig.stat.exists
+
+    - name: Set kubeconfig file mode
+      file:
+        path: "{{ ansible_env.HOME }}/.kube/config"
+        mode: 0600
 
     - name: Install Flannel CNI
       command: kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml
