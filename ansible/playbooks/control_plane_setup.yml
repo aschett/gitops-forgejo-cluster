@@ -1,5 +1,8 @@
 - name: Set up Kubernetes control plane
   hosts: k8control_primary
+  vars:
+    kube_path: "{{ ansible_env.HOME }}/.kube"
+    kubeconfig_path: "{{ kube_path }}/config"
 
   tasks:
     # install required packages
@@ -44,18 +47,18 @@
     # Following three tasks need to be done as per https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/
     - name: Create .kube directory
       file:
-        path: "{{ ansible_env.HOME }}/.kube"
+        path: "{{ kube_path }}"
         state: directory
 
     - name: Check if kubeconfig exists
       stat:
-        path: "{{ ansible_env.HOME }}/.kube/config"
+        path: "{{ kubeconfig_path }}"
       register: kubeconfig
 
     - name: Copy kubeconfig to user directory
       copy:
         src: /etc/kubernetes/admin.conf
-        dest: "{{ ansible_env.HOME }}/.kube/config"
+        dest: "{{ kubeconfig_path }}"
         remote_src: true
         owner: "{{ ansible_user_id }}"
         group: "{{ ansible_user_gid }}"
@@ -64,13 +67,13 @@
 
     - name: Set kubeconfig file mode
       file:
-        path: "{{ ansible_env.HOME }}/.kube/config"
+        path: "{{ kubeconfig_path }}"
         mode: 0600
 
     - name: Install Flannel CNI
       command: kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml
       environment:
-        KUBECONFIG: "{{ ansible_env.HOME }}/.kube/config"
+        KUBECONFIG: "{{ kubeconfig_path }}"
       when: not kube_apiserver_manifest.stat.exists
 
   handlers:
