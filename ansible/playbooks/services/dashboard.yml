@@ -10,12 +10,17 @@
           kubernetes-dashboard
           kubernetes-dashboard/kubernetes-dashboard
           --create-namespace --namespace kubernetes-dashboard
-
-    - name: Wait for dashboard pod to come online
-      register: result
-      retries: 10
-      delay: 10
-      until: result.status == 200
+    
+    - name: Wait for dashboard pod to be ready
+      kubernetes.core.k8s_info:
+        kind: Pod
+        namespace: kubernetes-dashboard
+        label_selectors:
+          - app.kubernetes.io/name=kubernetes-dashboard
+        register: dashboard-pod
+        retries: 10
+        delay: 10
+        until: dashboard_pods.resources[0].status.containerStatuses[0].ready
 
     - name: Enable access to dashboard via proxy
       command: >
