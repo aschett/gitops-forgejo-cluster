@@ -1,15 +1,31 @@
-- name: Install Kubernetes dashboard
+- name: Verify Python interpreter
   hosts: k8control_primary
   tasks:
-    - name: Add Helm repo
-      command: helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
+    - name: Check Python interpreter exists
+      stat:
+        path: "{{ ansible_env.HOME }}/ansible-venv/bin/python3"
+      register: venv
+    - fail:
+        msg: Please set up the Python interpreter using `playbooks/python.yml`
+      when: not venv.stat.exists
+
+- name: Install Kubernetes dashboard
+  vars:
+    ansible_python_interpreter: "{{ ansible_env.HOME }}/ansible-venv/bin/python3"
+  hosts: k8control_primary
+  tasks:
+    - name: Add dashboard Helm repo
+      kubernetes.core.helm_repository:
+        name: kubernetes-dashboard
+        repo_url: https://kubernetes.github.io/dashboard/
   
-    - name: Run Helm install
-      command: >
-        helm upgrade --install
-          kubernetes-dashboard
-          kubernetes-dashboard/kubernetes-dashboard
-          --create-namespace --namespace kubernetes-dashboard
+    - name: Deploy Kubernetes dashboard via Helm
+      kubernetes.core.helm:
+        name: kubernetes-dashboard
+        chart_ref: kubernetes-dashboard/kubernetes-dashboard
+        namespace: kubernetes-dashboard
+        create_namespace: true
+        # wait: false   # preferable to do this explicitly
     
     - name: Wait for dashboard pod to be ready
       kubernetes.core.k8s_info:

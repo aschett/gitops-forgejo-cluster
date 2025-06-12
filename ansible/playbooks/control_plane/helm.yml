@@ -31,3 +31,7 @@
           file:
             path: /tmp/get_helm.sh
             state: absent
+
+    - name: Install Helm diff plugin
+      kubernetes.core.helm_plugin:
+        plugin_path: https://github.com/databus23/helm-diff
