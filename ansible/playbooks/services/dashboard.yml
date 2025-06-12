@@ -26,17 +26,15 @@
         namespace: kubernetes-dashboard
         create_namespace: true
         # wait: false   # preferable to do this explicitly
-    
-    - name: Wait for dashboard pod to be ready
+
+    - name: Wait for dashboard service to be up
       kubernetes.core.k8s_info:
-        kind: Pod
+        kind: Service
         namespace: kubernetes-dashboard
-        label_selectors:
-          - app.kubernetes.io/name=kubernetes-dashboard
-        register: dashboard-pod
-        retries: 10
-        delay: 10
-        until: dashboard_pods.resources[0].status.containerStatuses[0].ready
+        name: kubernetes-dashboard-kong-proxy
+        wait: true
+        # wait_sleep: 5
+        # wait_timeout: 120
 
     # - name: Enable access to dashboard via proxy
     #   command: >
