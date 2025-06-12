@@ -1,5 +1,15 @@
+# keep this handler at the top
+# (it should be run before any service restarts, in case the service has changed)
+- name: systemd daemon-reload
+  systemd_service:
+    daemon_reload: true
+  become: true
+
 - name: Restart containerd
   service:
     name: containerd
     state: restarted
   become: true
+
+- name: Restart kubelet if running
+  include_tasks: ../tasks/restart_kubelet.yml

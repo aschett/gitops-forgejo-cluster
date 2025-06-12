@@ -1,0 +1,6 @@
+- name: Get list of nodes to be joined
+  hosts: k8nodes
+  tasks:
+    - name: Test
+      debug:
+        var: "hostvars"

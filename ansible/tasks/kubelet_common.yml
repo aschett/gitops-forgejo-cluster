@@ -1,0 +1,27 @@
+- debug:
+    var: ansible_env
+
+- name: Get Wireguard IP from SSH connection
+  set_fact:
+    wireguard_ip: "{{ ansible_host }}"
+
+- name: Create override for kubelet.service
+  block:
+    - name: Create override directory
+      file:
+        path: /etc/systemd/system/kubelet.service.d/
+        state: directory
+        owner: root
+        group: root
+        mode: 0755
+    - name: Copy kubelet.service drop-in
+      template:
+        src: kubelet-override.conf.j2
+        remote_src: false
+        dest: /etc/systemd/system/kubelet.service.d/override.conf
+        owner: root
+        group: root
+        mode: 0644
+  notify:
+    - systemd daemon-reload
+    - Restart kubelet if running

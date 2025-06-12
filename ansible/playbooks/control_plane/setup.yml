@@ -11,6 +11,9 @@
     # br_netfilter and containerd
     - include_tasks: ../../tasks/setup_common.yml
 
+    # kubelet service override
+    - include_tasks: ../../tasks/kubelet_common.yml
+
     - name: Enable kubelet
       systemd:
         name: kubelet
@@ -32,6 +35,9 @@
           --upload-certs
       when: not kube_apiserver_manifest.stat.exists
       become: true
+
+    # kubelet service override
+    - include_tasks: ../../tasks/kubelet_common.yml
 
     - name: Wait for Kubernetes API server to be alive
       uri:

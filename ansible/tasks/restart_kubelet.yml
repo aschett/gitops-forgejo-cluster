@@ -1,0 +1,9 @@
+- name: Get service facts
+  service_facts:
+
+- name: Restart kubelet
+  service:
+    name: kubelet
+    state: restarted
+  when: "ansible_facts.services['kubelet.service'].state in ['running', 'failed']"
+  become: true
