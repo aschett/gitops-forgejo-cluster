@@ -1,0 +1,29 @@
+- name: Setup Python venv for Ansible
+  hosts: k8control_primary:k8control_secondary:k8nodes
+  vars:
+    venv_path: "{{ ansible_env.HOME }}/ansible-venv"
+  tasks:
+    - name: Install required system package on Debian
+      apt:
+        name: python3-venv
+        state: present
+        update_cache: true
+      become: true
+      when: ansible_distribution == 'Debian'
+
+    - name: Install required system package on Arch
+      pacman:
+        name: python-packaging
+        state: present
+        update_cache: true
+      become: true
+      when: ansible_distribution == 'Archlinux'
+
+    - name: Create venv with required packages
+      pip:
+        virtualenv: "{{ venv_path }}"
+        virtualenv_command: "{{ ansible_python.executable }} -m venv"
+        virtualenv_site_packages: true
+        name:
+          - kubernetes==33.1.0
+        state: present

@@ -1,5 +1,6 @@
 # Playbook that ensures that other playbooks run in correct order
 --- 
+- import_playbook: python.yml
 - import_playbook: control_plane/setup.yml
 - import_playbook: control_plane/helm.yml
 - import_playbook: workers/setup.yml
