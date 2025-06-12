@@ -22,10 +22,10 @@
         delay: 10
         until: dashboard_pods.resources[0].status.containerStatuses[0].ready
 
-    - name: Enable access to dashboard via proxy
-      command: >
-        kubectl
-          --namespace kubernetes-dashboard
-          port-forward
-            --address localhost,10.89.1.1
-            svc/kubernetes-dashboard-kong-proxy 8443:443
+    # - name: Enable access to dashboard via proxy
+    #   command: >
+    #     kubectl
+    #       --namespace kubernetes-dashboard
+    #       port-forward
+    #         --address localhost,10.89.1.1
+    #         svc/kubernetes-dashboard-kong-proxy 8443:443
