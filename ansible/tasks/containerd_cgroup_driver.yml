@@ -1,18 +1,19 @@
 # playbooks using this must also have `handlers:` with `- import_tasks: handlers/common.yml`
 
-- name: Create containerd config if none exists
+- name: Check whether containerd config exists
+  stat:
+    path: /etc/containerd/config.toml
+  register: containerd_config
+
+- name: Create default containerd config
   block:
     - name: Create /etc/containerd
       file:
         path: /etc/containerd
         state: directory
-    - name: Check whether a config exists
-      stat:
-        path: /etc/containerd/config.toml
-      register: containerd_config
-    - name: Obtain default config
-      when: not containerd_config.stat.exists
+    - name: Obtain containerd default config
       shell: containerd config default > /etc/containerd/config.toml
+  when: not containerd_config.stat.exists
   become: true
 
 - name: Set containerd cgroup driver to systemd
