@@ -6,6 +6,7 @@
     wireguard_ip: "{{ ansible_host }}"
 
 - name: Create override for kubelet.service
+  become: true
   block:
     - name: Create override directory
       file:
