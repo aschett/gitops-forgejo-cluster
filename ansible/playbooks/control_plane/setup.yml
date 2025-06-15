@@ -80,6 +80,14 @@
         KUBECONFIG: "{{ kubeadm_conf_path }}"
       when: not kube_apiserver_manifest.stat.exists
 
+    - name: Symlink /opt/cni/bin/flannel to /usr/lib/cni/ on Debian
+      file:
+        path: /usr/lib/cni/flannel
+        state: link
+        src: /opt/cni/bin/flannel
+      when: "ansible_distribution == 'Debian'"
+      become: true
+
     # Apparently need to be restarted again after cni is applied
     - name: Restart containerd
       systemd:
