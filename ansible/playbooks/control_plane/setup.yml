@@ -27,6 +27,13 @@
       register: kube_apiserver_manifest
       become: true
 
+    - name: stop kubelet
+      service:
+        name: kubelet
+        state: stopped
+      when: not kube_apiserver_manifest.stat.exists
+      become: true
+
     - name: Initialize the Kubernetes control plane
       command: >
         kubeadm init
@@ -36,8 +43,8 @@
       when: not kube_apiserver_manifest.stat.exists
       become: true
 
-    # kubelet service override
-    - include_tasks: ../../tasks/kubelet_common.yml
+    # # kubelet service override
+    # - include_tasks: ../../tasks/kubelet_common.yml
 
     - name: Wait for Kubernetes API server to be alive
       uri:
@@ -82,5 +89,20 @@
         KUBECONFIG: "{{ kubeconfig_path }}"
       when: not kube_apiserver_manifest.stat.exists
 
+    # Apparently need to be restarted again after cni is applied
+    - name: Restart containerd
+      systemd:
+        name: containerd
+        state: restarted
+        enabled: true
+      become: true
+
+    - name: Restart kubelet
+      systemd:
+        name: kubelet
+        state: restarted
+        enabled: true
+      become: true
+      
   handlers:
     - import_tasks: ../../handlers/common.yml
