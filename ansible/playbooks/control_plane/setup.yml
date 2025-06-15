@@ -1,6 +1,18 @@
+- name: Verify Python interpreter
+  hosts: k8control_primary
+  tasks:
+    - name: Check Python interpreter exists
+      stat:
+        path: "{{ ansible_env.HOME }}/ansible-venv/bin/python3"
+      register: venv
+    - fail:
+        msg: Please set up the Python interpreter using `playbooks/python.yml`
+      when: not venv.stat.exists
+
 - name: Set up Kubernetes control plane
   hosts: k8control_primary
   vars:
+    ansible_python_interpreter: "{{ ansible_env.HOME }}/ansible-venv/bin/python3"
     kube_path: "{{ ansible_env.HOME }}/.kube"
     kubeadm_conf_path: "{{ kube_path }}/config"
 
@@ -75,10 +87,12 @@
         mode: 0600
 
     - name: Install Flannel CNI
-      command: kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml
-      environment:
-        KUBECONFIG: "{{ kubeadm_conf_path }}"
-      when: not kube_apiserver_manifest.stat.exists
+      kubernetes.core.k8s:
+        state: present
+        src: https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml
+      notify:
+        - Restart containerd
+        - Restart kubelet if running
 
     - name: Symlink /opt/cni/bin/flannel to /usr/lib/cni/ on Debian
       file:
@@ -89,19 +103,6 @@
       become: true
 
     # Apparently need to be restarted again after cni is applied
-    - name: Restart containerd
-      systemd:
-        name: containerd
-        state: restarted
-        enabled: true
-      become: true
-
-    - name: Restart kubelet
-      systemd:
-        name: kubelet
-        state: restarted
-        enabled: true
-      become: true
       
   handlers:
     - import_tasks: ../../handlers/common.yml
