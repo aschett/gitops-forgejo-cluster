@@ -2,24 +2,8 @@
   hosts: k8nodes
   become: true
   tasks:
-    - name: Remove iptables (conflicts with iptables-nft)
-      pacman:
-        name: iptables
-        extra_args: "--cascade"
-        state: absent
-
-    - name: Install required packages
-      pacman:
-        name:
-          - iproute2
-          - iptables-nft
-          - containerd
-          - cni-plugins
-          - kubelet
-          - kubeadm
-          - kube-proxy
-        state: present
-        update_cache: yes
+    # install required packages
+    - include_tasks: "../../tasks/pkgs_worker-{{ ansible_distribution }}.yml"
 
     # br_netfilter and containerd
     - include_tasks: ../../tasks/setup_common.yml

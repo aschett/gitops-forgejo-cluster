@@ -1,0 +1,8 @@
+- include_tasks: pkgs_common-Archlinux.yml
+
+- name: Install required packages for worker nodes
+  pacman:
+    name:
+      - kube-proxy
+    state: present
+  become: true

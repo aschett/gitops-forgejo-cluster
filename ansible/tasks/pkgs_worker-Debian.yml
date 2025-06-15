@@ -1,0 +1,8 @@
+- include_tasks: pkgs_common-Debian.yml
+
+- name: Install required packages for workers nodes
+  apt:
+    name:
+      - kube-proxy
+    state: present
+  become: true

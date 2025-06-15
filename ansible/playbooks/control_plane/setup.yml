@@ -6,7 +6,7 @@
 
   tasks:
     # install required packages
-    - include_tasks: "../../tasks/control_plane_pkgs-{{ ansible_distribution }}.yml"
+    - include_tasks: "../../tasks/pkgs_control_plane-{{ ansible_distribution }}.yml"
 
     # br_netfilter and containerd
     - include_tasks: ../../tasks/setup_common.yml

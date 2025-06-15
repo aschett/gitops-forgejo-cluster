@@ -1,0 +1,9 @@
+- include_tasks: pkgs_common-Debian.yml
+
+- name: Install required packages for control plane
+  apt:
+    name:
+      - kubectl
+      - git
+    state: present
+  become: true

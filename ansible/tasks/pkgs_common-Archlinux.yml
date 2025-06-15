@@ -13,8 +13,6 @@
       - cni-plugins
       - kubelet
       - kubeadm
-      - kubectl
-      - git
     state: present
     update_cache: true
   become: true

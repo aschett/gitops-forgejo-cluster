@@ -1,0 +1,9 @@
+- include_tasks: pkgs_common-Archlinux.yml
+
+- name: Install required packages for control plane
+  pacman:
+    name:
+      - kubectl
+      - git
+    state: present
+  become: true
