@@ -16,23 +16,32 @@
   when: not containerd_config.stat.exists
   become: true
 
-- name: Set containerd cgroup driver to systemd
-  blockinfile:
+# Followed installation guide tbh
+- name: use systemd as cgroup driver
+  lineinfile:
+    dest: /etc/containerd/config.toml
+    regexp: '(\s+SystemdCgroup) = false'
+    line: '\1 = true'
+    backrefs: yes
+    state: present
+  become: true
+
+- name: Set sandbox_image to same version
+  lineinfile:
     path: /etc/containerd/config.toml
-    block: |
-      {% filter indent(width=4, first=true) %}
-      [plugins."io.containerd.grpc.v1.cri".containerd]
-        [plugins."io.containerd.grpc.v1.cri".containerd.runtimes]
-          [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
-            runtime_type = "io.containerd.runc.v2"
-            [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
-              SystemdCgroup = true
-      {% endfilter %}
-    insertafter: >-
-      ^[\t ]*\[plugins\.['"]io\.containerd\.grpc\.v1\.cri['"]\][\t ]*$
+    regexp: '^(\s*sandbox_image\s*=).*'
+    line: '\1 "registry.k8s.io/pause:3.10"'
+    backrefs: yes
+    state: present
   become: true
   notify:
     - Restart containerd
+
+
+- name: enable containerd
+  service:
+    name: containerd
+    enabled: yes
 
 - name: Restart containerd if needed
   meta: flush_handlers
