@@ -2,7 +2,7 @@
   hosts: k8control_primary
   vars:
     kube_path: "{{ ansible_env.HOME }}/.kube"
-    kubeconfig_path: "{{ kube_path }}/config"
+    kubeadm_conf_path: "{{ kube_path }}/config"
 
   tasks:
     # install required packages
@@ -63,30 +63,24 @@
         path: "{{ kube_path }}"
         state: directory
 
-    - name: Check if kubeconfig exists
-      stat:
-        path: "{{ kubeconfig_path }}"
-      register: kubeconfig
-
-    - name: Copy kubeconfig to user directory
+    - name: Copy kubeadm config to user directory
       copy:
         src: /etc/kubernetes/admin.conf
-        dest: "{{ kubeconfig_path }}"
+        dest: "{{ kubeadm_conf_path }}"
         remote_src: true
         owner: "{{ ansible_user_id }}"
         group: "{{ ansible_user_gid }}"
       become: true
-      when: not kubeconfig.stat.exists
 
     - name: Set kubeconfig file mode
       file:
-        path: "{{ kubeconfig_path }}"
+        path: "{{ kubeadm_conf_path }}"
         mode: 0600
 
     - name: Install Flannel CNI
       command: kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml
       environment:
-        KUBECONFIG: "{{ kubeconfig_path }}"
+        KUBECONFIG: "{{ kubeadm_conf_path }}"
       when: not kube_apiserver_manifest.stat.exists
 
     # Apparently need to be restarted again after cni is applied
