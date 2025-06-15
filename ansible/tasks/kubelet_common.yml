@@ -1,12 +1,8 @@
-- debug:
-    var: ansible_env
-
 - name: Get Wireguard IP from SSH connection
   set_fact:
     wireguard_ip: "{{ ansible_host }}"
 
 - name: Create override for kubelet.service
-  become: true
   block:
     - name: Create override directory
       file:
