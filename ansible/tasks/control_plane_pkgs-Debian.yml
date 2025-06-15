@@ -16,6 +16,7 @@
       - iptables
       - nftables
       - containerd
+      - containernetworking-plugins
       - kubelet
       - kubeadm
       - kubectl

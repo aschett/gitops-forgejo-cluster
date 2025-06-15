@@ -10,6 +10,7 @@
       - iproute2
       - iptables-nft
       - containerd
+      - cni-plugins
       - kubelet
       - kubeadm
       - kubectl
