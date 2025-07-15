@@ -1,0 +1,18 @@
+- name: Deploy Argo CD via helm
+  hosts: k8control_primary
+  tasks:
+    - name: Add argocd helm repo
+      kubernetes.core.helm_repository:
+        name: argo
+        repo_url: https://argoproj.github.io/argo-helm/
+
+    - name: Install Argo CD
+      kubernetes.core.helm:
+        name: argocd
+        chart_ref: argo/argo-cd
+        release_namespace: argocd
+        create_namespace: true
+        values:
+          server:
+            service:
+              type: LoadBalancer
